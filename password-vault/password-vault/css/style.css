@@ -1,0 +1,167 @@
+/* ==========================================================
+ * style.css - Giao diện chung cho Cổng xác thực & Vault
+ * ========================================================== */
+:root {
+  --bg-0: #070b18;
+  --bg-1: #0d1326;
+  --card: rgba(22, 30, 54, 0.78);
+  --card-border: rgba(120, 150, 255, 0.16);
+  --accent: #5b8cff;
+  --accent-2: #8b5cf6;
+  --ok: #22c55e;
+  --warn: #f59e0b;
+  --bad: #ef4444;
+  --text-dim: #94a3c4;
+}
+
+html, body { min-height: 100%; }
+body {
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  background:
+    radial-gradient(900px 500px at 10% -10%, rgba(91, 140, 255, .22), transparent 60%),
+    radial-gradient(800px 500px at 100% 0%, rgba(139, 92, 246, .18), transparent 55%),
+    linear-gradient(180deg, var(--bg-1), var(--bg-0));
+  background-attachment: fixed;
+  color: #e6ebff;
+}
+
+.text-dim { color: var(--text-dim) !important; }
+.font-mono { font-family: "JetBrains Mono", "Fira Code", Consolas, monospace; }
+
+/* ---------- Card kính mờ ---------- */
+.glass {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 1.1rem;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, .35);
+}
+
+.form-control, .form-select, .input-group-text {
+  background-color: rgba(8, 12, 28, .7);
+  border-color: rgba(120, 150, 255, .2);
+  color: #e6ebff;
+}
+.form-control:focus {
+  background-color: rgba(8, 12, 28, .9);
+  color: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 .2rem rgba(91, 140, 255, .22);
+}
+.form-control::placeholder { color: #66739a; }
+.input-group-text { color: var(--text-dim); }
+
+.btn-brand {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border: 0; color: #fff; font-weight: 600;
+  transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+}
+.btn-brand:hover { color: #fff; transform: translateY(-1px); filter: brightness(1.08); box-shadow: 0 8px 22px rgba(91, 140, 255, .35); }
+.btn-brand:disabled { opacity: .6; transform: none; box-shadow: none; }
+
+.brand-badge {
+  width: 64px; height: 64px; border-radius: 18px;
+  display: inline-grid; place-items: center; font-size: 1.9rem; color: #fff;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  box-shadow: 0 10px 30px rgba(91, 140, 255, .4);
+}
+
+/* ---------- Thanh độ mạnh mật khẩu ---------- */
+.strength-track { height: 8px; border-radius: 99px; background: rgba(255, 255, 255, .08); overflow: hidden; }
+.strength-bar { height: 100%; width: 0; border-radius: 99px; transition: width .3s ease, background-color .3s ease; }
+.strength-label { font-size: .8rem; font-weight: 600; }
+.lvl-0 { background: var(--bad); color: var(--bad); }
+.lvl-1 { background: var(--warn); color: var(--warn); }
+.lvl-2 { background: #84cc16; color: #84cc16; }
+.lvl-3 { background: var(--ok); color: var(--ok); }
+.strength-label.lvl-0, .strength-label.lvl-1, .strength-label.lvl-2, .strength-label.lvl-3 { background: none; }
+
+/* ---------- Face scanner ---------- */
+.scanner {
+  position: relative; width: 260px; height: 260px; margin: 0 auto;
+  border-radius: 50%; overflow: hidden;
+  border: 3px solid rgba(91, 140, 255, .6);
+  box-shadow: 0 0 0 6px rgba(91, 140, 255, .12), 0 0 40px rgba(91, 140, 255, .3);
+  background: #000;
+}
+.scanner video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+.scanner::after {
+  content: ""; position: absolute; left: 0; right: 0; height: 3px; top: 0;
+  background: linear-gradient(90deg, transparent, #5bffb0, transparent);
+  box-shadow: 0 0 14px #5bffb0; animation: scan 2.2s ease-in-out infinite; opacity: .85;
+}
+.scanner.success { border-color: var(--ok); box-shadow: 0 0 0 6px rgba(34, 197, 94, .18), 0 0 40px rgba(34, 197, 94, .45); }
+.scanner.fail { border-color: var(--bad); box-shadow: 0 0 0 6px rgba(239, 68, 68, .18), 0 0 40px rgba(239, 68, 68, .45); }
+.scanner.idle::after { display: none; }
+@keyframes scan { 0%, 100% { top: 4%; } 50% { top: 94%; } }
+
+/* ---------- Các bước (stepper) ---------- */
+.stepper { display: flex; justify-content: center; gap: .5rem; margin-bottom: 1.25rem; }
+.stepper .dot { width: 34px; height: 5px; border-radius: 99px; background: rgba(255, 255, 255, .12); transition: background .3s; }
+.stepper .dot.active { background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+.stepper .dot.done { background: var(--ok); }
+
+.pane { animation: fadeUp .35s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* ---------- Toast ---------- */
+#toast-container {
+  position: fixed; top: 1rem; right: 1rem; z-index: 2000;
+  display: flex; flex-direction: column; gap: .6rem; max-width: calc(100vw - 2rem);
+}
+.toast-item {
+  display: flex; align-items: center; gap: .7rem; min-width: 270px;
+  padding: .8rem 1rem; border-radius: .8rem; color: #fff;
+  background: rgba(20, 28, 52, .96); border: 1px solid var(--card-border);
+  border-left: 4px solid var(--accent); box-shadow: 0 12px 30px rgba(0, 0, 0, .45);
+  animation: slideIn .35s cubic-bezier(.2, .9, .3, 1.2) forwards;
+}
+.toast-item.hide { animation: slideOut .3s ease forwards; }
+.toast-item.success { border-left-color: var(--ok); }
+.toast-item.error   { border-left-color: var(--bad); }
+.toast-item.warning { border-left-color: var(--warn); }
+.toast-item .ico { font-size: 1.2rem; }
+.toast-item.success .ico { color: var(--ok); }
+.toast-item.error .ico   { color: var(--bad); }
+.toast-item.warning .ico { color: var(--warn); }
+.toast-item.info .ico    { color: var(--accent); }
+@keyframes slideIn  { from { opacity: 0; transform: translateX(120%); } to { opacity: 1; transform: none; } }
+@keyframes slideOut { to { opacity: 0; transform: translateX(120%); } }
+
+/* ---------- Vault ---------- */
+.navbar-vault {
+  background: rgba(10, 15, 32, .75); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--card-border);
+}
+.vault-card { transition: transform .18s ease, border-color .18s ease; animation: fadeUp .35s ease; }
+.vault-card:hover { transform: translateY(-3px); border-color: rgba(91, 140, 255, .45); }
+.avatar {
+  width: 46px; height: 46px; border-radius: 13px; flex: 0 0 46px;
+  display: grid; place-items: center; font-weight: 700; font-size: 1.15rem; color: #fff;
+}
+.pw-dots { letter-spacing: .25rem; color: var(--text-dim); }
+.act-btn { width: 40px; height: 40px; display: inline-grid; place-items: center; border-radius: 10px; }
+.cipher-box {
+  word-break: break-all; background: rgba(0, 0, 0, .45); border: 1px dashed rgba(120, 150, 255, .35);
+  border-radius: .7rem; padding: .8rem 1rem; font-size: .85rem; color: #7dffb8;
+}
+.server-box {
+  background: #050810; border: 1px solid rgba(120, 150, 255, .18); border-radius: .7rem;
+  padding: .8rem 1rem; font-size: .78rem; color: #9fb3ff; max-height: 200px; overflow: auto; white-space: pre-wrap; word-break: break-all;
+}
+.modal-content { background: #111a33; border: 1px solid var(--card-border); color: #e6ebff; }
+.modal-header, .modal-footer { border-color: var(--card-border); }
+.btn-close { filter: invert(1) grayscale(1); }
+.empty-state { padding: 3rem 1rem; text-align: center; color: var(--text-dim); }
+.empty-state i { font-size: 3rem; opacity: .5; }
+.badge-soft { background: rgba(91, 140, 255, .15); color: #9db8ff; border: 1px solid rgba(91, 140, 255, .25); }
+
+.form-range::-webkit-slider-runnable-track { background: rgba(255, 255, 255, .12); }
+.form-check-input { background-color: rgba(8, 12, 28, .7); border-color: rgba(120, 150, 255, .35); }
+.form-check-input:checked { background-color: var(--accent); border-color: var(--accent); }
+
+@media (max-width: 575.98px) {
+  .scanner { width: 220px; height: 220px; }
+  #toast-container { left: 1rem; right: 1rem; }
+  .toast-item { min-width: 0; }
+}
