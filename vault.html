@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="vi" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SecureVault · Kho mật khẩu</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+</head>
+<body class="d-none" id="app-body">
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar navbar-vault sticky-top">
+    <div class="container-xl">
+      <span class="navbar-brand d-flex align-items-center gap-2 fw-bold text-white">
+        <span class="brand-badge" style="width:38px;height:38px;font-size:1.1rem;border-radius:11px;"><i class="bi bi-shield-lock-fill"></i></span>
+        SecureVault
+      </span>
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge badge-soft d-none d-sm-inline-flex align-items-center gap-1 py-2 px-3">
+          <i class="bi bi-hourglass-split"></i> Tự khóa sau <span id="lock-countdown" class="font-mono">05:00</span>
+        </span>
+        <button class="btn btn-outline-light btn-sm" id="btn-lock">
+          <i class="bi bi-lock-fill me-1"></i><span class="d-none d-sm-inline">Khóa kho</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container-xl py-4">
+    <div class="row g-4">
+
+      <!-- ===== CỘT TRÁI: FORM THÊM + GENERATOR ===== -->
+      <div class="col-lg-5 col-xl-4">
+        <div class="glass p-4 mb-4">
+          <h2 class="h6 fw-bold mb-3"><i class="bi bi-plus-circle-fill text-primary me-2"></i>Thêm tài khoản mới</h2>
+
+          <form id="form-add" autocomplete="off" novalidate>
+            <div class="mb-3">
+              <label class="form-label small" for="f-app">Tên ứng dụng / Website</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-globe2"></i></span>
+                <input type="text" id="f-app" class="form-control" placeholder="VD: Facebook, Gmail…" maxlength="60" required>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small" for="f-user">Tên tài khoản (Email / SĐT)</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                <input type="text" id="f-user" class="form-control" placeholder="email@example.com hoặc 09xxxxxxxx" maxlength="100" required>
+              </div>
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label small" for="f-pass">Mật khẩu gốc</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-key-fill"></i></span>
+                <input type="password" id="f-pass" class="form-control" placeholder="Nhập hoặc sinh ngẫu nhiên" autocomplete="new-password" required>
+                <button class="btn btn-outline-secondary" type="button" id="f-eye" title="Ẩn/hiện mật khẩu"><i class="bi bi-eye"></i></button>
+              </div>
+            </div>
+
+            <div class="strength-track mb-1"><div class="strength-bar" id="f-bar"></div></div>
+            <div class="strength-label mb-3" id="f-label">Chưa nhập</div>
+
+            <!-- Generator -->
+            <div class="p-3 rounded-3 mb-3" style="background: rgba(8,12,28,.55); border: 1px solid var(--card-border);">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="small fw-semibold"><i class="bi bi-magic me-1 text-warning"></i>Sinh mật khẩu ngẫu nhiên</span>
+                <span class="badge badge-soft font-mono" id="g-len-val">16</span>
+              </div>
+              <label for="g-len" class="visually-hidden">Độ dài</label>
+              <input type="range" class="form-range mb-2" id="g-len" min="8" max="64" value="16">
+              <div class="row g-2 small mb-3">
+                <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" id="g-upper" checked><label class="form-check-label" for="g-upper">Chữ hoa (A-Z)</label></div></div>
+                <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" id="g-lower" checked><label class="form-check-label" for="g-lower">Chữ thường (a-z)</label></div></div>
+                <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" id="g-digit" checked><label class="form-check-label" for="g-digit">Số (0-9)</label></div></div>
+                <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" id="g-symbol" checked><label class="form-check-label" for="g-symbol">Ký tự đặc biệt</label></div></div>
+                <div class="col-12"><div class="form-check"><input class="form-check-input" type="checkbox" id="g-ambig"><label class="form-check-label" for="g-ambig">Loại ký tự dễ nhầm (O, 0, l, 1, I)</label></div></div>
+              </div>
+              <button type="button" class="btn btn-outline-warning btn-sm w-100" id="btn-generate">
+                <i class="bi bi-arrow-repeat me-1"></i> Sinh mật khẩu
+              </button>
+            </div>
+
+            <button type="submit" class="btn btn-brand w-100 py-2" id="btn-save">
+              <i class="bi bi-lock-fill me-1"></i> Mã hóa AES-256 &amp; Lưu
+            </button>
+          </form>
+        </div>
+
+        <!-- Mô phỏng server -->
+        <div class="glass p-4">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <h2 class="h6 fw-bold mb-0"><i class="bi bi-hdd-network-fill text-info me-2"></i>Mô phỏng Server</h2>
+            <span class="badge text-bg-dark border">Zero-Knowledge</span>
+          </div>
+          <p class="small text-dim mb-2">Dữ liệu duy nhất mà server nhận được sau khi bấm Lưu:</p>
+          <pre class="server-box font-mono mb-0" id="server-payload">// Chưa có yêu cầu nào.</pre>
+        </div>
+      </div>
+
+      <!-- ===== CỘT PHẢI: VAULT ===== -->
+      <div class="col-lg-7 col-xl-8">
+        <div class="glass p-4">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+            <h2 class="h6 fw-bold mb-0"><i class="bi bi-safe2-fill text-success me-2"></i>Kho mật khẩu <span class="badge badge-soft ms-1" id="vault-count">0</span></h2>
+            <div class="btn-group btn-group-sm" role="group" aria-label="Chế độ hiển thị">
+              <button class="btn btn-outline-secondary active" id="view-card" title="Dạng thẻ"><i class="bi bi-grid-fill"></i></button>
+              <button class="btn btn-outline-secondary" id="view-table" title="Dạng bảng"><i class="bi bi-list-ul"></i></button>
+            </div>
+          </div>
+
+          <div class="input-group mb-4">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="search" id="search" class="form-control" placeholder="Tìm theo tên ứng dụng / tài khoản…" autocomplete="off">
+          </div>
+
+          <div id="vault-list"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== MODAL: XEM CHUỖI MÃ HÓA ===== -->
+  <div class="modal fade" id="modal-cipher" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-eye-fill text-info me-2"></i>Chuỗi mã hóa AES-256 · <span id="cipher-app"></span></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p class="small text-dim">Đây là dữ liệu thực sự được lưu trên server. Nếu không có Mật khẩu chủ, không ai có thể đọc được nội dung này.</p>
+          <div class="row g-3 small">
+            <div class="col-12"><div class="text-dim mb-1">IV (16 byte ngẫu nhiên, hex)</div><div class="cipher-box font-mono" id="c-iv"></div></div>
+            <div class="col-12"><div class="text-dim mb-1">Ciphertext (AES-256-CBC, Base64)</div><div class="cipher-box font-mono" id="c-ct"></div></div>
+            <div class="col-12"><div class="text-dim mb-1">HMAC-SHA256 (kiểm tra toàn vẹn)</div><div class="cipher-box font-mono" id="c-mac"></div></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary btn-sm" id="btn-copy-cipher"><i class="bi bi-clipboard me-1"></i>Sao chép chuỗi đầy đủ</button>
+          <button class="btn btn-brand btn-sm" data-bs-dismiss="modal">Đóng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL: XÁC NHẬN XÓA ===== -->
+  <div class="modal fade" id="modal-delete" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-trash3-fill text-danger me-2"></i>Xóa tài khoản?</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-dim">
+          Bạn sắp xóa <b class="text-white" id="del-name"></b> khỏi kho. Không thể hoàn tác.
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button class="btn btn-danger" id="btn-del-confirm">Xóa</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/crypto.js"></script>
+  <script src="js/vault.js"></script>
+</body>
+</html>
